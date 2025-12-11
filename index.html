@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Easy Tender CRM (Premium)</title>
+  <style>
+    :root{
+      --primary:#0057ff; /* brand primary */
+      --accent:#00c6ff;
+      --bg:#f4f6f9;
+      --card:#ffffff;
+      --text:#0b1b2b;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);transition:background .35s ease,color .35s ease}
+
+    /* Splash / Loader */
+    #splash{position:fixed;inset:0;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;color:#fff}
+    .logo-wrap{animation:logo-pop .9s cubic-bezier(.2,.9,.2,1)}
+    @keyframes logo-pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+    .loader{margin-top:18px;width:80px;height:6px;background:rgba(255,255,255,0.15);border-radius:6px;overflow:hidden}
+    .loader span{display:block;height:100%;width:0;background:#fff;border-radius:6px;animation:load 2s infinite}
+    @keyframes load{0%{width:0}50%{width:80%}100%{width:0}}
+
+    /* Layout */
+    .layout{display:flex;height:100vh;}
+    .sidebar{width:240px;background:linear-gradient(180deg,var(--primary),var(--accent));color:#fff;padding:18px;display:flex;flex-direction:column;gap:10px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{height:56px;width:56px;object-fit:contain;border-radius:8px;background:#fff;padding:6px}
+    .brand h1{font-size:18px;margin:0}
+    .tagline{font-size:12px;opacity:0.9}
+    .nav{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+    .nav button{background:transparent;border:none;color:#fff;text-align:left;padding:12px;border-radius:8px;cursor:pointer;font-weight:600}
+    .nav button.active, .nav button:hover{background:rgba(255,255,255,0.08)}
+
+    .main{flex:1;padding:18px;overflow:auto}
+    .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .controls{display:flex;gap:10px;align-items:center}
+    .theme-toggle{padding:8px 12px;border-radius:8px;border:none;background:var(--card);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+
+    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 4px 16px rgba(12,20,30,0.06);transition:transform .18s ease,box-shadow .18s ease}
+    .card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(12,20,30,0.08)}
+
+    input,select,button{font-family:inherit}
+    input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #e3e7ef}
+    .btn-primary{background:var(--primary);color:#fff;padding:10px 12px;border:none;border-radius:8px;cursor:pointer}
+
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th,td{padding:8px;border-bottom:1px solid #eef2f7;text-align:left}
+    th{background:transparent;color:var(--primary);font-weight:700}
+
+    .tag{padding:5px 8px;border-radius:8px;color:#fff;font-weight:600;font-size:12px}
+    .today{background:#28a745}
+    .future{background:#17a2b8}
+    .registered{background:#ffc107;color:#000}
+    .noti{background:#dc3545}
+
+    footer{padding:12px;text-align:center;font-size:13px;color:rgba(0,0,0,0.6)}
+
+    /* Responsive */
+    @media(max-width:900px){
+      .sidebar{position:fixed;left:-260px;top:0;height:100vh;z-index:40;transition:left .28s ease}
+      .sidebar.open{left:0}
+      .layout{flex-direction:column}
+      .main{padding:14px}
+    }
+
+    /* Dark mode tweaks */
+    .dark{background:#071022;color:#dce7f5}
+    .dark .card{background:#0b1220;box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+    .dark input, .dark select{background:#071022;border:1px solid #123}
+
+  </style>
+</head>
+<body>
+
+<!-- Splash -->
+<div id="splash">
+  <div class="logo-wrap"><img src="/mnt/data/LOGO.jpg" alt="Easy Tender" style="height:110px;object-fit:contain;border-radius:8px;background:#fff;padding:6px"/></div>
+  <div style="font-weight:700;font-size:20px;margin-top:8px">Easy Tender CRM</div>
+  <div class="loader"><span></span></div>
+</div>
+
+<div class="layout" id="app" style="display:none;">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img src="/mnt/data/LOGO.jpg" alt="Logo" />
+      <div>
+        <h1>Easy Tender</h1>
+        <div class="tagline">Empowering Your Business with Smart CRM</div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="active" onclick="showPage('dashboard', this)">Dashboard</button>
+      <button onclick="showPage('today', this)">Today Follow-up</button>
+      <button onclick="showPage('future', this)">Future Follow-up</button>
+      <button onclick="showPage('registered', this)">Registered</button>
+      <button onclick="showPage('noti', this)">Not Interested</button>
+    </div>
+
+    <div style="margin-top:auto;font-size:13px;opacity:0.9">Need help? support@easytender.com<br/>+91-98765-43210</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;gap:12px;align-items:center">
+        <button onclick="toggleSidebar()" class="theme-toggle">☰</button>
+        <div style="font-weight:700;font-size:18px" id="pageTitle">Dashboard</div>
+      </div>
+      <div class="controls">
+        <button class="theme-toggle" onclick="toggleDark()">Toggle Dark</button>
+        <a class="btn-primary" href="sandbox:/mnt/data/Easy_Tender_CRM_User_Manual.pdf" target="_blank" style="text-decoration:none">Download Manual (PDF)</a>
+      </div>
+    </div>
+
+    <input id="search" placeholder="Search by name or mobile..." onkeyup="searchData()" style="margin-bottom:12px;padding:10px;border-radius:8px;border:1px solid #e6eef9" />
+
+    <div class="card" style="margin-bottom:14px">
+      <h3 id="formTitle">Add Client</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <input id="clientName" placeholder="Client Name" />
+        <input id="companyName" placeholder="Company Name" />
+        <input id="mobile" placeholder="Mobile Number" />
+        <input id="city" placeholder="City" />
+        <input id="state" placeholder="State" />
+        <input id="followDate" type="date" />
+      </div>
+      <input id="remarks" placeholder="Remarks" style="margin-top:10px" />
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <select id="status" style="flex:1">
+          <option value="today">Today Follow-up</option>
+          <option value="future">Future Follow-up</option>
+          <option value="registered">Registered</option>
+          <option value="noti">Not Interested</option>
+        </select>
+        <button class="btn-primary" id="saveBtn" onclick="addClient()">Save Client</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Client List</h3>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:8px">
+        <button class="btn-primary" onclick="exportExcel()">Export Excel</button>
+        <input type="file" id="csvFile" onchange="importCSV()" />
+      </div>
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Company</th><th>Mobile</th><th>City</th><th>State</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="tableData"></tbody>
+      </table>
+    </div>
+
+    <footer class="card" style="margin-top:18px">
+      <div><strong>Easy Tender</strong> — Support: support@easytender.com | +91-98765-43210</div>
+      <div style="margin-top:6px;font-size:13px;color:rgba(0,0,0,0.6)">Powered by Easy Tender CRM • Version 1.0</div>
+    </footer>
+  </main>
+</div>
+
+<script>
+  // Splash hide after 1.6s
+  setTimeout(()=>{ document.getElementById('splash').style.display='none'; document.getElementById('app').style.display='flex'; },1600);
+
+  let clients = JSON.parse(localStorage.getItem('crm_clients') || '[]');
+  let editingIndex = -1;
+  let dark = localStorage.getItem('crm_dark')==='1';
+  if(dark) document.documentElement.classList.add('dark');
+
+  function toggleSidebar(){ const sb = document.getElementById('sidebar'); sb.classList.toggle('open'); }
+  function toggleDark(){ document.documentElement.classList.toggle('dark'); dark = document.documentElement.classList.contains('dark'); localStorage.setItem('crm_dark', dark? '1':'0'); }
+
+  function addClient(){
+    const c = { name:clientName.value, company:companyName.value, mobile:mobile.value, city:city.value, state:state.value, date:followDate.value, remarks:remarks.value, status:status.value };
+    if(editingIndex>=0){ clients[editingIndex]=c; editingIndex=-1; saveBtn.innerText='Save Client'; formTitle.innerText='Add Client'; }
+    else clients.push(c);
+    localStorage.setItem('crm_clients', JSON.stringify(clients)); refresh();
+  }
+
+  function showPage(type, btn){
+    document.getElementById('pageTitle').innerText = type.toUpperCase();
+    // nav active
+    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active');
+    let filtered = clients; if(type!=='dashboard') filtered = clients.filter(a=>a.status===type);
+    render(filtered);
+  }
+
+  function render(data){
+    tableData.innerHTML = data.map((x,i)=>`<tr>
+      <td>${x.name}</td><td>${x.company}</td><td>${x.mobile}</td><td>${x.city}</td><td>${x.state}</td><td>${x.date||''}</td>
+      <td><span class='tag ${x.status}'>${x.status}</span></td>
+      <td>
+        <button class='editBtn' onclick='editClient(${i})'>Edit</button>
+        <button class='deleteBtn' onclick='deleteClient(${i})'>Delete</button>
+        <button class='moveBtn' onclick="moveStatus(${i},'today')">Today</button>
+        <button class='moveBtn' onclick="moveStatus(${i},'future')">Future</button>
+        <button class='moveBtn' onclick="moveStatus(${i},'registered')">Reg</button>
+        <button class='moveBtn' onclick="moveStatus(${i},'noti')">Noti</button>
+      </td></tr>`).join('');
+  }
+
+  function editClient(i){ const x=clients[i]; clientName.value=x.name; companyName.value=x.company; mobile.value=x.mobile; city.value=x.city; state.value=x.state; followDate.value=x.date; remarks.value=x.remarks; status.value=x.status; editingIndex=i; saveBtn.innerText='Update Client'; formTitle.innerText='Edit Client'; }
+  function deleteClient(i){ if(confirm('Delete this client?')){ clients.splice(i,1); localStorage.setItem('crm_clients',JSON.stringify(clients)); refresh(); }}
+  function moveStatus(i,s){ clients[i].status=s; localStorage.setItem('crm_clients',JSON.stringify(clients)); refresh(); }
+
+  function searchData(){ let q = document.getElementById('search').value.toLowerCase(); let res = clients.filter(a=>a.name.toLowerCase().includes(q)||a.mobile.includes(q)); render(res); }
+
+  function exportExcel(){
+    // CSV standardized, date DD/MM/YYYY
+    function ddmmyyyy(d){ if(!d) return ''; const dt=new Date(d); if(isNaN(dt)) return d; return (dt.getDate().toString().padStart(2,'0')+'/'+(dt.getMonth()+1).toString().padStart(2,'0')+'/'+dt.getFullYear()); }
+    let csv = 'Name,Company,Mobile,City,State,FollowUp Date,Status,Remarks
+' + clients.map(x=>`"${x.name}","${x.company}","${x.mobile}","${x.city}","${x.state}","${ddmmyyyy(x.date)}","${x.status}","${(x.remarks||'')}"`).join('
+');
+    let a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='EasyTender_CRM_Export.csv'; a.click();
+  }
+
+  function importCSV(){ let file = document.getElementById('csvFile').files[0]; if(!file) return; let reader=new FileReader(); reader.onload=function(e){ let rows=e.target.result.split('
+').map(r=>r.trim()).filter(r=>r); // skip header if present
+    if(rows[0] && rows[0].toLowerCase().includes('name,company')) rows.shift(); rows.forEach(r=>{ let cols=r.split(','); if(cols.length>=7){ clients.push({name:cols[0].replace(/"/g,''), company:cols[1].replace(/"/g,''), mobile:cols[2].replace(/"/g,''), city:cols[3].replace(/"/g,''), state:cols[4].replace(/"/g,''), date:cols[5].replace(/"/g,''), status:cols[6].replace(/"/g,''), remarks:cols[7]?cols[7].replace(/"/g,''):''}); }}); localStorage.setItem('crm_clients',JSON.stringify(clients)); refresh(); }; reader.readAsText(file); }
+
+  function refresh(){ showPage('dashboard'); }
+  refresh();
+</script>
+</body>
+</html>
